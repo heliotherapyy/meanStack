@@ -22,26 +22,33 @@ db.on('error', function() {
   console.log("there was an error communiating with the database");
 });
 
+
+
 mongoose.connect(dbUrl, function (err) {
   if (err) {
     return console.log("There was a problem connecting to the database: ", err);
   }
 
   console.log("Connected!");
-  var team = new Team({
-    name: "Product Development"
-  });
+  Team.create({
+  	name: 'Product Development'
+  }, {
+  	name: 'Dev Ops'
+  }, {
+  	name: 'Accounting'
+  }, function (error, pd, devops, acct) {
+  	if (error) {
+  		console.log(error);
+  	} else {
+  		console.dir(pd);
+  		console.dir(devops);
+  		console.dir(acct);
 
-  team.save(function (error, data) {
-    if (error) {
-      console.log(error);
-    } else {
-      console.dir(data);
-    }
-    db.close();
-    process.exit();
+  		db.close();
+  		process.exit();
+  	}
   })
-})
+});
 
 var EmployeeSchema = new Schema({
   name: {
