@@ -18,5 +18,8 @@
   "homepage": "https://github.com/heliotherapyy/meanStack#readme",
   "devDependencies": {
     "colors": "^1.1.2"
+  },
+  "dependencies": {
+    "mongoose": "^4.6.2"
   }
 }
