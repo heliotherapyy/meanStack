@@ -16,39 +16,6 @@ var TeamSchema = new Schema({
   }
 });
 
-var Team = mongoose.model('Team', TeamSchema);
-
-db.on('error', function() {
-  console.log("there was an error communiating with the database");
-});
-
-
-
-mongoose.connect(dbUrl, function (err) {
-  if (err) {
-    return console.log("There was a problem connecting to the database: ", err);
-  }
-
-  console.log("Connected!");
-  Team.create({
-  	name: 'Product Development'
-  }, {
-  	name: 'Dev Ops'
-  }, {
-  	name: 'Accounting'
-  }, function (error, pd, devops, acct) {
-  	if (error) {
-  		console.log(error);
-  	} else {
-  		console.dir(pd);
-  		console.dir(devops);
-  		console.dir(acct);
-
-  		db.close();
-  		process.exit();
-  	}
-  })
-});
 
 var EmployeeSchema = new Schema({
   name: {
@@ -78,6 +45,110 @@ var EmployeeSchema = new Schema({
     }
   }
 });
+
+var Team = mongoose.model('Team', TeamSchema);
+var Employee = mongoose.model('Employee', EmployeeSchema);
+
+db.on('error', function() {
+  console.log("there was an error communiating with the database");
+});
+
+function insertTeams (callback) {
+	Team.create({
+		name: 'Product Development'
+	}, {
+		name: 'Dev Ops'
+	}, {
+		name: 'Accounting'
+	}, function (error, pd, devops, acct) {
+		if (error) {
+			return callback(error);
+		} else {
+			console.info("Teams Successfully added");
+			callback(null, pd, devops, acct);
+		}
+	});
+}
+
+function insertEmployees (pd, devops, acct, callback) {
+  Employee.create([{
+    name: {
+      first: 'John',
+      last: 'Adams'
+    },
+    Team: pd._id,
+    address: {
+      lines: ['2 Lincoln Memorial Cir NW'],
+      postal: '20037'
+    }
+  }, {
+    name: {
+      first: 'Thomas',
+      last: 'Jefferson'
+    },
+    Team: devops._id,
+    address: {
+      lines: ['1600 Pennsylvania Avenue', 'White House'],
+      postal: '20500'
+    }
+  }, {
+    name: {
+      first: 'James',
+      last: 'Madison'
+    },
+    team: acct._id,
+    address: {
+      lines: ['2 15th St NW', 'PO Box 8675309'],
+      postal: '20007'
+    }
+  }, {
+    name: {
+      first: 'James',
+      last: 'Monroe'
+    },
+    team: acct._id,
+    address: {
+      lines: ['1850 West Basin Dr SW', 'Suite 210'],
+      postal: '20242'
+    }
+  }], function (error, johnadams) {
+    if (error) {
+      return callback(error);
+    } else {
+      console.info('employees successfully added sir!');
+      callback(null, {
+        team: pd,
+        employee: johnadams
+      });
+    }
+  })
+}
+
+mongoose.connect(dbUrl, function (err) {
+  if (err) {
+    return console.log("There was a problem connecting to the database: ", err);
+  }
+
+  console.log("Connected!");
+
+  insertTeams(function (err, pd, devops, acct) {
+  	if (err) {
+  		return console.log(err);
+  	}
+
+  	insertEmployees(pd, devops, acct, function (err, result) {
+  		if (err) {
+  			console.error(err);
+  		} else {
+  			console.info("Database activity complete");
+  		}
+
+  		db.close();
+  		process.exit();
+  	})
+  })
+});
+
 
 
 
